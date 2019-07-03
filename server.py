@@ -79,9 +79,11 @@ class Server(object):
         :return: str
         """
 
-        # TODO: YOUR CODE HERE
-
-        pass
+        # Create a Key-Value Pairing for the difference room colors
+        rooms = {0:'Green Room', 1:'Red Room', 2:'Black Room', 3:'Orange Room'}
+        
+        return "You are in the {}".format(rooms[room_number])
+        
 
     def greet(self):
         """
@@ -107,10 +109,27 @@ class Server(object):
          
         :return: None 
         """
+        # Create an empty string to store the information
+        msg = b''
 
-        # TODO: YOUR CODE HERE
+        # Perform a 'while' loop to ensure all data is obtained
+        #while True:
+        #    data = self.client_connection.recv(16)
+        #    msg += data.decode('utf8')
 
-        pass
+            # If no data is recieved, break the loop
+        #    if not data:
+        #        break
+        # Update the input buffer
+        #self.input_buffer = msg
+
+        ### Note: Changed how The Instructor handled this, it looked
+        # much cleaner, so I'll be going with that
+        received = b''
+        while b'\n' not in received:
+            received += self.client_connection.recv(16)
+        
+        self.input_buffer = received.decode()
 
     def move(self, argument):
         """
@@ -131,12 +150,52 @@ class Server(object):
         
         :param argument: str
         :return: None
+
         """
+        
+        # Need to evalute the move relative to the room that the person
+        # is currently in to make a decision. Copy and Pasted Instructor
+        # code, to avoid tedius logic gate requirements
 
-        # TODO: YOUR CODE HERE
+        #if argument == "north":
+        #    if self.room = 0:
+        #        self.room = 3
+        #if argument == 'south':
+        #    if self.room = 3:
+        #        self.room = 0
+        #if argument == 'east':
+        #    if self.room = 2:
+        #        self.room = 0
+        #    elif self.room = 0:
+        #        self.room = 1
+        #if argument == 'west':
+        #    if self.room = 1:
+        #        self.room = 0
+        #    elif self.room = 0:
+        #        self.room = 2
 
-        pass
+        #self.output_beffer = self.room_description(self.room)
+        
 
+        if self.room == 0 and argument == "north":
+            self.room = 3
+
+        if self.room == 0 and argument == "west":
+            self.room = 1
+
+        if self.room == 0 and argument == "east":
+            self.room = 2
+
+        if self.room == 1 and argument = "east":
+            self.room = 0
+
+        if self.room == 2 and argument == "west":
+            self.room = 0
+
+        if self.room == 3 and argument == "south":
+            self.room = 0
+
+        self.output_buffer = self.room_description(self.room)
     def say(self, argument):
         """
         Lets the client speak by putting their utterance into the output buffer.
@@ -151,9 +210,8 @@ class Server(object):
         :return: None
         """
 
-        # TODO: YOUR CODE HERE
+        self.output_buffer = "You say: {}".format(argument)
 
-        pass
 
     def quit(self, argument):
         """
@@ -167,9 +225,11 @@ class Server(object):
         :return: None
         """
 
-        # TODO: YOUR CODE HERE
-
-        pass
+        # Flags the system to end the While Loop
+        self.done = True
+        # Place the final message to the user to the buffer to be sent 
+        # to the client
+        self.output_buffer = "Goodbye"
 
     def route(self):
         """
@@ -183,9 +243,21 @@ class Server(object):
         :return: None
         """
 
-        # TODO: YOUR CODE HERE
+        if self.input_buffer == "quit":
+            self.quit(None)
+        
+        # split the input from the variable
+        command_list = self.input_buffer.split(' ')
 
-        pass
+        # Split list to obtain intent
+        function = command_list[0]
+        action = " ".join(command_list[1:-1])
+
+        if function == 'move':
+            self.move(action)
+        
+        if function == 'say':
+            self.say(action)
 
     def push_output(self):
         """
@@ -197,18 +269,25 @@ class Server(object):
         :return: None 
         """
 
-        # TODO: YOUR CODE HERE
-
-        pass
+        # Takes the information from the queued output buffer to be sent
+        # to the screen. Starts with "ok", takes the content of the output
+        # buffer, encodes it into bits, then sends it through connection
+        self.client_connection.sendall(b"OK!" + self.output_buffer.encode() + b"\n")
 
     def serve(self):
+        # Connect to the Client
         self.connect()
+        # Greet the Client
         self.greet()
+        # Push initial statements in the out_put Buffer to the client
         self.push_output()
 
         while not self.done:
+            # Obtain the input from the client
             self.get_input()
             self.route()
+
+            # Push the information from the output_buffer to the client
             self.push_output()
 
         self.client_connection.close()
