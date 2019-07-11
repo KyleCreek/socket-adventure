@@ -81,6 +81,7 @@ class Server(object):
 
         # Create a Key-Value Pairing for the difference room colors
         rooms = {0:'Green Room', 1:'Red Room', 2:'Black Room', 3:'Orange Room'}
+        print("Current Rooom NUmber", self.room)
         
         return "You are in the {}".format(rooms[room_number])
         
@@ -110,7 +111,7 @@ class Server(object):
         :return: None 
         """
         # Create an empty string to store the information
-        msg = b''
+        #msg = b''
 
         # Perform a 'while' loop to ensure all data is obtained
         #while True:
@@ -132,6 +133,8 @@ class Server(object):
         self.input_buffer = received.decode()
 
     def move(self, argument):
+        """
+        THis Whole Section is currently broken"""
         """
         Moves the client from one room to another.
         
@@ -156,46 +159,57 @@ class Server(object):
         # Need to evalute the move relative to the room that the person
         # is currently in to make a decision. Copy and Pasted Instructor
         # code, to avoid tedius logic gate requirements
-
-        #if argument == "north":
-        #    if self.room = 0:
-        #        self.room = 3
-        #if argument == 'south':
-        #    if self.room = 3:
-        #        self.room = 0
-        #if argument == 'east':
-        #    if self.room = 2:
-        #        self.room = 0
-        #    elif self.room = 0:
-        #        self.room = 1
-        #if argument == 'west':
-        #    if self.room = 1:
-        #        self.room = 0
-        #    elif self.room = 0:
-        #        self.room = 2
-
-        #self.output_beffer = self.room_description(self.room)
-        
-
-        if self.room == 0 and argument == "north":
-            self.room = 3
-
-        if self.room == 0 and argument == "west":
-            self.room = 1
-
-        if self.room == 0 and argument == "east":
-            self.room = 2
-
-        if self.room == 1 and argument = "east":
-            self.room = 0
-
-        if self.room == 2 and argument == "west":
-            self.room = 0
-
-        if self.room == 3 and argument == "south":
-            self.room = 0
+        print("Here is the Incoming argument", argument)
+        if argument == "north":
+            if self.room == 0:
+                self.room = 3
+        elif argument == 'south':
+            if self.room == 3:
+                self.room = 0
+        elif argument == 'east':
+            if self.room == 2:
+                self.room = 0
+            elif self.room == 0:
+                self.room = 1
+        elif argument == 'west':
+            if self.room == 1:
+                self.room = 0
+            elif self.room == 0:
+                self.room = 2
+        else:
+            print("Something went wrong")
 
         self.output_buffer = self.room_description(self.room)
+        
+
+        #if self.room == 0 and argument == "north":
+        #    print("triggered 1")
+        #    self.room = 3
+
+        #elif self.room == 0 and argument == "west":
+        #    print("triggered 2")
+        #    self.room = 1
+
+        #elif self.room == 0 and argument == "east":
+        #    print("triggered 3")
+        #    self.room = 2
+
+        #elif self.room == 1 and argument == "east":
+        #    print("triggered 4")
+        #    self.room = 0
+
+        #elif self.room == 2 and argument == "west":
+        #    print("triggered 5")
+        #    self.room = 0
+
+        #elif self.room == 3 and argument == "south":
+        #    print("triggered 6")
+        #    self.room = 0
+
+        #self.output_buffer = self.room_description(int(self.room))
+        
+        #print("Here is the output Buffer", self.output_buffer)
+    
     def say(self, argument):
         """
         Lets the client speak by putting their utterance into the output buffer.
@@ -251,7 +265,8 @@ class Server(object):
 
         # Split list to obtain intent
         function = command_list[0]
-        action = " ".join(command_list[1:-1])
+        action = " ".join(command_list[1:])
+        
 
         if function == 'move':
             self.move(action)
